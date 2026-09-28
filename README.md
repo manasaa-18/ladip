@@ -1,49 +1,52 @@
 # Longitudinal Adverse Drug Interaction Predictor (LADIP) 💊⏱️
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-009688.svg?logo=fastapi)](https://fastapi.tiangolo.com)
-[![Streamlit](https://img.shields.io/badge/Streamlit-1.32+-FF4B4B.svg?logo=streamlit)](https://streamlit.io)
-[![Expo](https://img.shields.io/badge/Expo%20Go-SDK%2050+-000020.svg?logo=expo)](https://expo.dev)
-[![Tests Passing](https://img.shields.io/badge/tests-24%2F24%20passing-brightgreen.svg)](#3-run-automated-tests)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://web-psi-gilt-e25eky7q2j.vercel.app)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![Next.js 14](https://img.shields.io/badge/Next.js-14-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![Expo Go](https://img.shields.io/badge/Expo-000000?style=for-the-badge&logo=expo&logoColor=white)](https://expo.dev/)
 
-> **A longitudinal, multi-drug pharmacovigilance system combining real-world FDA FAERS adverse event data with patient medication timelines to detect hidden drug-drug-symptom interactions while eliminating Clinical Alert Fatigue.**
+> A longitudinal, multi-drug pharmacovigilance system combining real-world FDA FAERS adverse event data with patient medication timelines to detect hidden drug-drug-symptom interactions while eliminating **Clinical Alert Fatigue**.
+
+🔗 **Live Application Portal:** [web-psi-gilt-e25eky7q2j.vercel.app](https://web-psi-gilt-e25eky7q2j.vercel.app)[cite: 1]
 
 ---
 
 ## 🎯 The Core Problem: Eliminating Clinical Alert Fatigue
 
-In modern Electronic Health Record (EHR) systems, **90% to 96% of drug interaction alerts are overridden and ignored by clinicians**. Conventional checkers trigger flood-level warnings for trivial, non-urgent, or long-standing stable combinations. When an overburdened physician receives 50 low-confidence alerts for an 8-medication patient, they ignore *all* of them—frequently missing the one critical interaction.
+In modern Electronic Health Record (EHR) systems, **90% to 96% of drug interaction alerts are overridden and ignored** by clinicians. Conventional checkers trigger flood-level warnings for trivial, non-urgent, or long-standing stable combinations. When an overburdened physician receives 50 low-confidence alerts for an 8-medication patient, they ignore all of them—frequently missing the one critical interaction.
 
-**LADIP solves this through three clinical pillars:**
-1. **Quantitative Disproportionality Scoring**: Replaces binary interaction lists with empirical signal detection statistics ($PRR$, $ROR$, $\chi^2$ with Yates' correction, $p$-value, Bayesian Information Component $IC$) and Evans' SRS criteria ($PRR \ge 2.0$, $\chi^2 \ge 4.0$, $N \ge 3$).
-2. **MedDRA & Outcome Severity Tiering**: Classifies signals into `CRITICAL`, `HIGH`, `MODERATE`, and `LOW` tiers using FDA FAERS outcome codes (`DE` Death, `LT` Life-Threatening, `HO` Hospitalization) and MedDRA System Organ Class (SOC) ontologies.
-3. **Temporal Plausibility & Longitudinal Suppression**: Evaluates the **Drug-Symptom Temporal Association Score (DTAS)** and the **Naranjo ADR Probability Scale** (10 questions). If a patient has taken a combination stably for $>6$ months with no adverse symptoms, benign background alerts are automatically suppressed.
+LADIP solves this through three clinical pillars:
+
+1. **Quantitative Disproportionality Scoring:** Replaces binary interaction lists with empirical signal detection statistics ($\text{PRR}$, $\text{ROR}$, $\chi^2$ with Yates' correction, $p$-value, Bayesian Information Component $\text{IC}$) and Evans' SRS criteria ($\text{PRR} \ge 2.0$, $\chi^2 \ge 4.0$, $N \ge 3$).
+2. **MedDRA & Outcome Severity Tiering:** Classifies signals into `CRITICAL`, `HIGH`, `MODERATE`, and `LOW` tiers using FDA FAERS outcome codes (`DE` Death, `LT` Life-Threatening, `HO` Hospitalization) and MedDRA System Organ Class (SOC) ontologies.
+3. **Temporal Plausibility & Longitudinal Suppression:** Evaluates the Drug-Symptom Temporal Association Score (DTAS) and the Naranjo ADR Probability Scale (10 questions). If a patient has taken a combination stably for $>6$ months with no adverse symptoms, benign background alerts are automatically suppressed.
 
 ---
 
 ## 🏛️ Segregated System Architecture (Next.js Web + Expo Mobile + FastAPI Backend)
 
-Why segregate the Web UI into **Next.js** instead of relying solely on Streamlit?
-- **Independent Frontend/Backend Scaling**: Streamlit re-executes the entire Python script on every widget interaction and couples UI state with backend compute in a single process. By segregating the **Next.js App Router Web UI (`web/`)** from the **FastAPI REST Service (`backend/main.py` & `src/api.py`)**, the frontend renders with client-side spring physics (`framer-motion`), instant tab transitions, and SSR/static asset caching while FastAPI scales independently across workers.
-- **Unified Multi-Client REST Contract**: Both the **Next.js Web Portal (`web/`)** and the **Expo React Native Mobile App (`mobile/`)** consume the exact same versioned FastAPI endpoints (`/api/v1/...`).
+### Why Segregate into Next.js + FastAPI?
 
-```
+* **Independent Frontend/Backend Scaling:** Streamlit re-executes the entire Python script on every widget interaction and couples UI state with backend compute in a single process. By segregating the Next.js App Router Web UI (`web/`) from the FastAPI REST Service (`backend/main.py` & `src/api.py`), the frontend renders with client-side spring physics (`framer-motion`), instant tab transitions, and SSR/static asset caching while FastAPI scales independently across workers.
+* **Unified Multi-Client REST Contract:** Both the Next.js Web Portal (`web/`) and the Expo React Native Mobile App (`mobile/`) consume the exact same versioned FastAPI endpoints (`/api/v1/...`).
+
 +------------------------------------+    +------------------------------------+
 |     Clinician Web Portal           |    |      Patient Mobile App            |
 |  (Next.js 14 + Tailwind + Motion)  |    |   (Expo Go / React Native)         |
 |  HORMN Theme + Taste-Skill UI      |    |                                    |
 +-----------------+------------------+    +-----------------+------------------+
-                  |                                         |
-                  +--------------------+--------------------+
-                                       |  HTTP / REST (/api/v1/...)
-                                       v
-                        +------------------------------+
-                        |  Segregated FastAPI Backend  |
-                        |  (backend/main.py, src/api)  |
-                        +--------------+---------------+
-                                       |
-                                       v
+|                                         |
++--------------------+--------------------+
+|  HTTP / REST (/api/v1/...)
+v
++------------------------------+
+|  Segregated FastAPI Backend  |
+|  (backend/main.py, src/api)  |
++--------------+---------------+
+|
+v
 +----------------------------------------------------------------------+
 |                     LADIP Core Intelligence Engine                   |
 |                                                                      |
@@ -57,20 +60,19 @@ Why segregate the Web UI into **Next.js** instead of relying solely on Streamlit
 |  | Memory Store           |  | Safety Checker    |  | Explainer    | |
 |  +------------------------+  +-------------------+  +--------------+ |
 +---------------------------------------+------------------------------+
-                                        |
-                                        v
-                 +--------------------------------------------+
-                 |    FDA FAERS Benchmark SQLite Database     |
-                 |     & OpenFDA Throttled Caching Client     |
-                 +--------------------------------------------+
-```
+|
+v
++--------------------------------------------+
+|    FDA FAERS Benchmark SQLite Database     |
+|     & OpenFDA Throttled Caching Client     |
++--------------------------------------------+
 
 ---
 
 ## 📁 Repository Structure
 
-```
-vnrvjeit/
+```text
+ladip/
 ├── web/                          # Segregated Next.js 14 App Router Web UI (HORMN-Inspired Theme)
 │   ├── package.json              # Next.js, React 18, Framer Motion, Phosphor Icons, Tailwind CSS
 │   ├── next.config.mjs           # API rewrites proxying /api/v1/* to FastAPI Backend (:8000)
@@ -131,119 +133,40 @@ vnrvjeit/
 ├── .env.example                  # Environment configuration template
 ├── LICENSE                       # MIT Open Source License (© 2026 LADIP Contributors)
 └── README.md
-```
 
----
-
-## 🧮 Mathematical & Statistical Foundations
-
-### 1. $2 \times 2$ Contingency Table for Pharmacovigilance
-| | Event $E$ Reported | Event $E$ Not Reported | Total |
-|---|---|---|---|
-| **Drug Combination $D$ Present** | $a$ | $b$ | $a+b$ |
-| **Drug Combination $D$ Absent** | $c$ | $d$ | $c+d$ |
-| **Total** | $a+c$ | $b+d$ | $N = a+b+c+d$ |
-
-### 2. Proportional Reporting Ratio (PRR)
-$$\text{PRR} = \frac{a / (a + b)}{c / (c + d)}$$
-$$95\% \text{ CI} = \exp\left(\ln(\text{PRR}) \pm 1.96 \sqrt{\frac{1}{a} - \frac{1}{a+b} + \frac{1}{c} - \frac{1}{c+d}}\right)$$
-
-### 3. Reporting Odds Ratio (ROR)
-$$\text{ROR} = \frac{a \cdot d}{b \cdot c}$$
-$$95\% \text{ CI} = \exp\left(\ln(\text{ROR}) \pm 1.96 \sqrt{\frac{1}{a} + \frac{1}{b} + \frac{1}{c} + \frac{1}{d}}\right)$$
-
-### 4. Chi-Squared ($\chi^2$) with Yates' Continuity Correction
-$$\chi^2 = \frac{N \left(|ad - bc| - \frac{N}{2}\right)^2}{(a+b)(c+d)(a+c)(b+d)}$$
-
-### 5. Multi-Drug Synergy Ratio
-$$\text{Synergy} = \frac{\text{PRR}(d_1 + d_2 + \dots + d_k)}{\max_{i < j} \text{PRR}(d_i + d_j)}$$
-Detects emergent interactions that *only* manifest when 3 or more drugs are co-prescribed concurrently.
-
----
-
-## 🔬 Benchmark Clinical Demo Cohort (Indian Patients)
-
-LADIP includes pre-configured realistic clinical test profiles showcasing complex multi-drug challenges:
-
-| Patient ID | Name | Age / Sex | Regimen | Adverse Reaction | Alert Priority | Clinical Mechanism |
-|---|---|---|---|---|---|---|
-| `PT_BLEED_001` | **Ramesh Sharma** | 68M (Hyderabad) | Warfarin + Aspirin + Ibuprofen | Gastrointestinal Hemorrhage | **CRITICAL (98.5/100)** | Triple hemostatic failure (COX-1 inhibition + Vit-K antagonism). Acute onset 3 days after adding Ibuprofen. |
-| `PT_STATIN_002` | **Sunita Patel** | 62F (Ahmedabad) | Simvastatin + Amiodarone + Amlodipine | Rhabdomyolysis | **CRITICAL (96.2/100)** | Severe CYP3A4 & P-gp inhibition causing massive simvastatin accumulation and CK surge (4,820 U/L). |
-| `PT_MTX_003` | **Kavitha Reddy** | 54F (Warangal) | Methotrexate + TMP-SMX + Naproxen | Pancytopenia | **CRITICAL (97.8/100)** | Renal clearance blockade + antifolate synergy causing lethal bone marrow suppression. |
-| `PT_CARDIO_005` | **Arjun Nair** | 52M (Bengaluru) | Clopidogrel + Omeprazole | Attenuated Antiplatelet Effect | **HIGH (78.0/100)** | Competitive CYP2C19 bioactivation blockade risking acute stent thrombosis. |
-| `PT_STABLE_004` | **Rajesh Varma** | 58M (Secunderabad) | Metformin + Lisinopril + Atorvastatin | *None (Negative Control)* | **SUPPRESSED (LOW)** | **Alert Fatigue Suppression**: Tolerated for 2+ years without symptoms. Suppressed so doctors aren't spammed! |
-
----
-
-## 🚀 Quickstart & Execution
-
-### 1. Prerequisites
-- Python 3.10 or higher
-- Node.js 18+ & npm (for Next.js Web UI & Expo Mobile App)
-- Optional: Gemini API key for natural language pharmacological rationales
-
-### 2. Installation
-```bash
-# Enter the project workspace
-cd vnrvjeit
+🧮 Mathematical & Statistical Foundations1. $2 \times 2$ Contingency Table for PharmacovigilanceMetricEvent E ReportedEvent E Not ReportedTotalDrug Combination $D$ Present$a$$b$$a + b$Drug Combination $D$ Absent$c$$d$$c + d$Total$a + c$$b + d$$N = a + b + c + d$2. Proportional Reporting Ratio ($\text{PRR}$)$$\text{PRR} = \frac{\frac{a}{a + b}}{\frac{c}{c + d}}$$3. Reporting Odds Ratio ($\text{ROR}$)$$\text{ROR} = \frac{a \cdot d}{b \cdot c}$$4. Chi-Squared ($\chi^2$) with Yates' Continuity Correction$$\chi^2 = \frac{N \cdot \left( \vert{}a \cdot d - b \cdot c\vert{} - \frac{N}{2} \right)^2}{(a + b)(c + d)(a + c)(b + d)}$$5. Multi-Drug Synergy Ratio$$\text{Synergy} = \frac{\text{PRR}(d_1 + d_2 + \dots + d_k)}{\max_{i < j} \text{PRR}(d_i + d_j)}$$Detects emergent interactions that only manifest when 3 or more drugs are co-prescribed concurrently.🔬 Benchmark Clinical Demo Cohort (Indian Patients)LADIP includes pre-configured realistic clinical test profiles showcasing complex multi-drug challenges:Patient IDName & DemographicsRegimenAdverse ReactionAlert PriorityClinical MechanismPT_BLEED_001Ramesh Sharma(68M, Hyderabad)Warfarin + Aspirin + IbuprofenGastrointestinal HemorrhageCRITICAL(98.5/100)Triple hemostatic failure (COX-1 inhibition + Vit-K antagonism). Acute onset 3 days after adding Ibuprofen.PT_STATIN_002Sunita Patel(62F, Ahmedabad)Simvastatin + Amiodarone + AmlodipineRhabdomyolysisCRITICAL(96.2/100)Severe CYP3A4 & P-gp inhibition causing massive simvastatin accumulation and CK surge (4,820 U/L).PT_MTX_003Kavitha Reddy(54F, Warangal)Methotrexate + TMP-SMX + NaproxenPancytopeniaCRITICAL(97.8/100)Renal clearance blockade + antifolate synergy causing lethal bone marrow suppression.PT_CARDIO_005Arjun Nair(52M, Bengaluru)Clopidogrel + OmeprazoleAttenuated Antiplatelet EffectHIGH(78.0/100)Competitive CYP2C19 bioactivation blockade risking acute stent thrombosis.PT_STABLE_004Rajesh Varma(58M, Secunderabad)Metformin + Lisinopril + AtorvastatinNone (Negative Control)SUPPRESSED(LOW)Alert Fatigue Suppression: Tolerated for 2+ years without symptoms. Suppressed so doctors aren't spammed!🚀 Quickstart & Execution1. PrerequisitesPython: 3.10 or higherNode.js: 18+ & npm (for Next.js Web UI & Expo Mobile App)API Key (Optional): Gemini API key for natural language pharmacological rationales
+2. Installation
+# Clone the repository
+git clone [https://github.com/manasaa-18/ladip.git](https://github.com/manasaa-18/ladip.git)
+cd ladip
 
 # Install Python backend dependencies
 pip install -r requirements.txt
 
 # Install Next.js Web Frontend dependencies
 cd web && npm install && cd ..
-```
-
-### 3. Run Automated Tests
+3. Run Automated Tests
 Verify mathematical engines, UI components, and API endpoints:
-```bash
 python3 -m pytest tests/ -v
-```
-
-### 4. Start the Segregated FastAPI REST Backend
-```bash
+4. Start the Segregated FastAPI REST Backend
 uvicorn backend.main:app --reload --port 8000
-```
-- API Root: `http://localhost:8000`
-- Interactive OpenAPI Docs: `http://localhost:8000/docs`
+API Root: http://localhost:8000
 
-### 5. Launch the Segregated Next.js Clinician Web UI (Recommended)
+Interactive OpenAPI Docs: http://localhost:8000/docs
+
+5. Launch the Segregated Next.js Clinician Web UI
 In a new terminal window:
-```bash
 cd web
 npm run dev
-```
-- Opens at `http://localhost:3000`
-- Built with **Next.js 14 App Router**, **Tailwind CSS**, **Framer Motion** spring physics, **Bklit.UI Composable Charts**, and the **HORMN-inspired Clinical Design System** (`Outfit` + `Plus Jakarta Sans` + `JetBrains Mono`).
+Opens at http://localhost:3000
 
-### 6. Launch Mobile Patient App (Expo Go)
+Built with Next.js 14 App Router, Tailwind CSS, Framer Motion spring physics, Bklit.UI Composable Charts, and the HORMN-inspired Clinical Design System (Outfit + Plus Jakarta Sans + JetBrains Mono).
+
+6. Launch Mobile Patient App (Expo Go)
 In a new terminal window:
-```bash
 cd mobile
 npm install
 npx expo start
-```
-
----
-
-## 📡 REST API Reference
-
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/` | API portal status, copyright metadata, and module links |
-| `GET` | `/api/v1/health` | Service health check and FAERS database statistics |
-| `GET` | `/api/v1/patients` | List all patient profiles in the clinical cohort registry |
-| `GET` | `/api/v1/patients/{patient_id}` | Retrieve complete patient EHR, timeline, and current medications |
-| `GET` | `/api/v1/patients/{patient_id}/schedule` | Retrieve daily dosing schedule slots (Morning, Afternoon, Evening, Bedtime) |
-| `GET` | `/api/v1/patients/{patient_id}/alerts` | Compute multi-drug disproportionality, DTAS, Naranjo causality, and alert priorities |
-| `POST` | `/api/v1/patients/{patient_id}/check-drug` | Prospective drug safety check: simulate adding a new medication |
-| `POST` | `/api/v1/patients/extract-timeline` | Parse PDF/Image/Text discharge summary and save new PatientProfile |
-| `POST` | `/api/v1/patients/{patient_id}/scan-report` | Upload prescription/report file or text for OCR timeline merge |
-| `POST` | `/api/v1/patients/{patient_id}/scan-base64` | Upload base64-encoded prescription image from mobile camera |
-| `POST` | `/api/v1/simulate` | Ad-hoc prospective simulation for arbitrary drug combinations (with live openFDA option) |
-
----
-
-## 🛡️ License
-
-This project is licensed under the MIT License — Copyright &copy; 2026 LADIP Contributors. See the [LICENSE](LICENSE) file for details.
+📡 REST API ReferenceMethodEndpointDescriptionGET/API portal status, copyright metadata, and module linksGET/api/v1/healthService health check and FAERS database statisticsGET/api/v1/patientsList all patient profiles in the clinical cohort registryGET/api/v1/patients/{patient_id}Retrieve complete patient EHR, timeline, and current medicationsGET/api/v1/patients/{patient_id}/scheduleRetrieve daily dosing schedule slots (Morning, Afternoon, Evening, Bedtime)GET/api/v1/patients/{patient_id}/alertsCompute multi-drug disproportionality, DTAS, Naranjo causality, and alert prioritiesPOST/api/v1/patients/{patient_id}/check-drugProspective drug safety check: simulate adding a new medicationPOST/api/v1/patients/extract-timelineParse PDF/Image/Text discharge summary and save new PatientProfilePOST/api/v1/patients/{patient_id}/scan-reportUpload prescription/report file or text for OCR timeline mergePOST/api/v1/patients/{patient_id}/scan-base64Upload base64-encoded prescription image from mobile cameraPOST/api/v1/simulateAd-hoc prospective simulation for arbitrary drug combinations (with live openFDA option)
+🛡️ License
+This project is licensed under the MIT License — Copyright © 2026 LADIP Contributors. See the LICENSE file for details.
